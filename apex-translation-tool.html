@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apex Partners - Translation Review Tool</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'DM Sans', system-ui, sans-serif; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    .glass { background: rgba(30, 41, 59, 0.5); backdrop-filter: blur(12px); }
+    .gradient-border { 
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.5), rgba(147, 51, 234, 0.5));
+      padding: 1px;
+      border-radius: 0.75rem;
+    }
+    .card-inner { background: rgba(15, 23, 42, 0.9); border-radius: 0.75rem; }
+    .transition-all { transition: all 0.3s ease; }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #1e293b; }
+    ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800/50 glass sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center font-bold text-lg">
+            A
+          </div>
+          <div>
+            <h1 class="text-xl font-semibold tracking-tight">Apex Partners</h1>
+            <p class="text-sm text-slate-400">Translation Review Tool — Business Finance English</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 text-sm">
+          <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-500/10 border border-red-500/20">
+            <span class="w-2 h-2 rounded-full bg-red-400"></span>
+            <span class="text-red-300" id="critical-count">4 Critical</span>
+          </div>
+          <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20">
+            <span class="w-2 h-2 rounded-full bg-orange-400"></span>
+            <span class="text-orange-300" id="high-count">9 High</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-6 py-8">
+    
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div class="gradient-border">
+        <div class="card-inner p-5">
+          <p class="text-slate-400 text-sm mb-1">Total Issues</p>
+          <p class="text-3xl font-bold text-slate-300" id="total-stat">30</p>
+        </div>
+      </div>
+      <div class="gradient-border">
+        <div class="card-inner p-5">
+          <p class="text-slate-400 text-sm mb-1">Critical</p>
+          <p class="text-3xl font-bold text-red-400" id="critical-stat">4</p>
+        </div>
+      </div>
+      <div class="gradient-border">
+        <div class="card-inner p-5">
+          <p class="text-slate-400 text-sm mb-1">High Priority</p>
+          <p class="text-3xl font-bold text-orange-400" id="high-stat">9</p>
+        </div>
+      </div>
+      <div class="gradient-border">
+        <div class="card-inner p-5">
+          <p class="text-slate-400 text-sm mb-1">Medium/Low</p>
+          <p class="text-3xl font-bold text-emerald-400" id="medium-low-stat">17</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="glass rounded-2xl p-5 mb-6 border border-slate-800/50">
+      <div class="flex flex-wrap items-center gap-4">
+        <!-- Search -->
+        <div class="flex-1 min-w-[280px]">
+          <div class="relative">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <input
+              type="text"
+              id="search-input"
+              placeholder="Search translations..."
+              class="w-full pl-10 pr-4 py-2.5 bg-slate-900/50 border border-slate-700/50 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-all"
+            >
+          </div>
+        </div>
+
+        <!-- Category Filter -->
+        <div class="flex items-center gap-2">
+          <span class="text-slate-500 text-sm">Category:</span>
+          <select id="category-select" class="px-3 py-2 bg-slate-900/50 border border-slate-700/50 rounded-lg text-slate-200 focus:outline-none focus:border-blue-500/50 cursor-pointer">
+            <option value="All">All</option>
+            <option value="Menu / Navigation">Menu / Navigation</option>
+            <option value="Products">Products</option>
+            <option value="Services">Services</option>
+            <option value="Structure">Structure</option>
+            <option value="Research">Research</option>
+            <option value="Events">Events</option>
+            <option value="Content">Content</option>
+            <option value="Numbers">Numbers</option>
+            <option value="URL Issues">URL Issues</option>
+          </select>
+        </div>
+
+        <!-- Priority Filter -->
+        <div class="flex items-center gap-2">
+          <span class="text-slate-500 text-sm">Priority:</span>
+          <div class="flex rounded-lg overflow-hidden border border-slate-700/50" id="priority-buttons">
+            <button data-priority="all" class="priority-btn px-3 py-2 text-sm bg-blue-600 text-white">All</button>
+            <button data-priority="critical" class="priority-btn px-3 py-2 text-sm bg-slate-900/50 text-slate-400 hover:text-slate-200">Critical</button>
+            <button data-priority="high" class="priority-btn px-3 py-2 text-sm bg-slate-900/50 text-slate-400 hover:text-slate-200">High</button>
+            <button data-priority="medium" class="priority-btn px-3 py-2 text-sm bg-slate-900/50 text-slate-400 hover:text-slate-200">Medium</button>
+            <button data-priority="low" class="priority-btn px-3 py-2 text-sm bg-slate-900/50 text-slate-400 hover:text-slate-200">Low</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Translation Cards Container -->
+    <div id="translations-container" class="space-y-3">
+      <!-- Cards will be inserted here by JavaScript -->
+    </div>
+
+    <!-- Empty state -->
+    <div id="empty-state" class="text-center py-16 hidden">
+      <svg class="w-16 h-16 mx-auto text-slate-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <p class="text-slate-500">No translations match your filters</p>
+    </div>
+
+    <!-- Quick Reference -->
+    <div class="mt-8 glass rounded-2xl p-6 border border-slate-800/50">
+      <h3 class="text-lg font-semibold mb-4">Quick Reference — Finance Terminology</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
+        <div class="flex items-center gap-2 px-3 py-2 bg-slate-900/30 rounded-lg">
+          <span class="text-slate-500">Consórcio</span>
+          <span class="text-slate-600">→</span>
+          <span class="text-emerald-400 mono font-medium">Consortium</span>
+        </div>
+        <div class="flex items-center gap-2 px-3 py-2 bg-slate-900/30 rounded-lg">
+          <span class="text-slate-500">Renda Fixa</span>
+          <span class="text-slate-600">→</span>
+          <span class="text-emerald-400 mono font-medium">Fixed Income</span>
+        </div>
+        <div class="flex items-center gap-2 px-3 py-2 bg-slate-900/30 rounded-lg">
+          <span class="text-slate-500">Renda Variável</span>
+          <span class="text-slate-600">→</span>
+          <span class="text-emerald-400 mono font-medium">Equities</span>
+        </div>
+        <div class="flex items-center gap-2 px-3 py-2 bg-slate-900/30 rounded-lg">
+          <span class="text-slate-500">Câmbio</span>
+          <span class="text-slate-600">→</span>
+          <span class="text-emerald-400 mono font-medium">Foreign Exchange (FX)</span>
+        </div>
+        <div class="flex items-center gap-2 px-3 py-2 bg-slate-900/30 rounded-lg">
+          <span class="text-slate-500">Fusões e Aquisições</span>
+          <span class="text-slate-600">→</span>
+          <span class="text-emerald-400 mono font-medium">M&A</span>
+        </div>
+        <div class="flex items-center gap-2 px-3 py-2 bg-slate-900/30 rounded-lg">
+          <span class="text-slate-500">Mercado de Capitais</span>
+          <span class="text-slate-600">→</span>
+          <span class="text-emerald-400 mono font-medium">Capital Markets</span>
+        </div>
+        <div class="flex items-center gap-2 px-3 py-2 bg-slate-900/30 rounded-lg">
+          <span class="text-slate-500">Crédito Privado</span>
+          <span class="text-slate-600">→</span>
+          <span class="text-emerald-400 mono font-medium">Private Credit</span>
+        </div>
+        <div class="flex items-center gap-2 px-3 py-2 bg-slate-900/30 rounded-lg">
+          <span class="text-slate-500">Gestão de Recursos</span>
+          <span class="text-slate-600">→</span>
+          <span class="text-emerald-400 mono font-medium">Asset Management</span>
+        </div>
+        <div class="flex items-center gap-2 px-3 py-2 bg-slate-900/30 rounded-lg">
+          <span class="text-slate-500">Assessoria</span>
+          <span class="text-slate-600">→</span>
+          <span class="text-emerald-400 mono font-medium">Advisory Services</span>
+        </div>
+        <div class="flex items-center gap-2 px-3 py-2 bg-slate-900/30 rounded-lg">
+          <span class="text-slate-500">Previdência</span>
+          <span class="text-slate-600">→</span>
+          <span class="text-emerald-400 mono font-medium">Pension / Retirement</span>
+        </div>
+        <div class="flex items-center gap-2 px-3 py-2 bg-slate-900/30 rounded-lg">
+          <span class="text-slate-500">Conta PJ</span>
+          <span class="text-slate-600">→</span>
+          <span class="text-emerald-400 mono font-medium">Business Account</span>
+        </div>
+        <div class="flex items-center gap-2 px-3 py-2 bg-slate-900/30 rounded-lg">
+          <span class="text-slate-500">Folha de Pagamento</span>
+          <span class="text-slate-600">→</span>
+          <span class="text-emerald-400 mono font-medium">Payroll</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800/50 mt-12">
+    <div class="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between text-sm text-slate-500 flex-wrap gap-2">
+      <p>Apex Partners Translation Review — apexpartners.com.br/en/</p>
+      <p><span id="item-count">30</span> items catalogued</p>
+    </div>
+  </footer>
+
+  <script>
+    // Translation data
+    const translationData = [
+      {
+        id: 1,
+        category: 'Menu / Navigation',
+        priority: 'high',
+        original: 'Group Purchase Plan',
+        current: 'Group Purchase Plan',
+        suggested: 'Consortium',
+        notes: 'In Brazilian financial services, "consórcio" is a specific product. "Consortium" is the accepted industry term in English for this Brazilian credit product.',
+        context: 'Banking menu item'
+      },
+      {
+        id: 2,
+        category: 'Menu / Navigation',
+        priority: 'high',
+        original: 'Gestão de Recursos',
+        current: 'Resource Management',
+        suggested: 'Asset Management',
+        notes: '"Asset Management" is the standard term in global finance for investment fund management services.',
+        context: 'Industries section'
+      },
+      {
+        id: 3,
+        category: 'Products',
+        priority: 'medium',
+        original: 'Renda Variável',
+        current: 'Variable income',
+        suggested: 'Equities / Variable Income',
+        notes: 'Capitalize consistently. "Equities" is more commonly used in institutional finance, but "Variable Income" is acceptable with proper capitalization.',
+        context: 'Investment products'
+      },
+      {
+        id: 4,
+        category: 'Products',
+        priority: 'medium',
+        original: 'Renda Fixa',
+        current: 'Fixed Income',
+        suggested: 'Fixed Income',
+        notes: '✓ Correct translation. Ensure consistent capitalization across all instances.',
+        context: 'Investment products'
+      },
+      {
+        id: 5,
+        category: 'Products',
+        priority: 'high',
+        original: 'Crédito Privado',
+        current: 'Private Credit',
+        suggested: 'Private Credit / Private Debt',
+        notes: 'Both terms are acceptable in finance. "Private Credit" is more common in the US; "Private Debt" in Europe. Maintain consistency.',
+        context: 'Corporate services'
+      },
+      {
+        id: 6,
+        category: 'Services',
+        priority: 'high',
+        original: 'Câmbio',
+        current: 'Exchange',
+        suggested: 'Foreign Exchange (FX)',
+        notes: '"Foreign Exchange" or "FX Services" is the professional term. "Exchange" alone is ambiguous (could mean stock exchange).',
+        context: 'Corporate banking'
+      },
+      {
+        id: 7,
+        category: 'Structure',
+        priority: 'high',
+        original: 'Polos',
+        current: 'Hubs / Poles',
+        suggested: 'Regional Hubs',
+        notes: 'Use "Regional Hubs" consistently. "Poles" is a literal translation that doesn\'t convey the business meaning.',
+        context: 'Geographic presence'
+      },
+      {
+        id: 8,
+        category: 'Research',
+        priority: 'critical',
+        original: 'Políticos (categoria)',
+        current: 'Politicians',
+        suggested: 'Political Analysis',
+        notes: '"Politicians" refers to people. "Political Analysis" or "Political Research" refers to the content category.',
+        context: 'Research filters'
+      },
+      {
+        id: 9,
+        category: 'Research',
+        priority: 'medium',
+        original: 'Rochas Ornamentais',
+        current: 'Ornamental Rocks',
+        suggested: 'Natural Stone / Dimension Stone',
+        notes: 'In the construction/export industry, "Natural Stone" or "Dimension Stone" are the professional terms.',
+        context: 'Sector reports'
+      },
+      {
+        id: 10,
+        category: 'Events',
+        priority: 'critical',
+        original: 'Cascavel (PR)',
+        current: 'rattlesnake (PR)',
+        suggested: 'Cascavel (PR)',
+        notes: '⚠️ CRITICAL ERROR: "Cascavel" is a city name, not a word to be translated. Never translate proper nouns/city names.',
+        context: 'Event location'
+      },
+      {
+        id: 11,
+        category: 'Events',
+        priority: 'critical',
+        original: 'Londrina (PR)',
+        current: 'London (PR)',
+        suggested: 'Londrina (PR)',
+        notes: '⚠️ CRITICAL ERROR: "Londrina" is a Brazilian city, not London. Never translate city names.',
+        context: 'Event locations'
+      },
+      {
+        id: 12,
+        category: 'Content',
+        priority: 'medium',
+        original: 'Mercados Regionais Brasileiros',
+        current: 'Brazilian Regional Markets',
+        suggested: 'Brazilian Regional Markets',
+        notes: '✓ Correct. This is Apex\'s strategic positioning. Consider trademark consistency: "Brazilian Regional Markets™"',
+        context: 'Brand positioning'
+      },
+      {
+        id: 13,
+        category: 'Services',
+        priority: 'high',
+        original: 'Assessoria',
+        current: 'Advisory',
+        suggested: 'Advisory Services / Investment Advisory',
+        notes: '"Advisory" is correct but could be more specific: "Investment Advisory" for clarity in financial context.',
+        context: 'Service offerings'
+      },
+      {
+        id: 14,
+        category: 'Services',
+        priority: 'medium',
+        original: 'Fusões e Aquisições',
+        current: 'Mergers & Acquisitions',
+        suggested: 'Mergers & Acquisitions (M&A)',
+        notes: '✓ Correct. Consider adding "(M&A)" for professionals who use the abbreviation.',
+        context: 'Investment banking'
+      },
+      {
+        id: 15,
+        category: 'Services',
+        priority: 'medium',
+        original: 'Mercado de Capitais',
+        current: 'Capital market',
+        suggested: 'Capital Markets',
+        notes: 'Use plural "Markets" - this is the standard industry term.',
+        context: 'Investment banking'
+      },
+      {
+        id: 16,
+        category: 'Products',
+        priority: 'medium',
+        original: 'Previdência Privada',
+        current: 'Private Pension',
+        suggested: 'Private Pension / Retirement Plans',
+        notes: 'Both acceptable. "Private Pension" for individual products; "Corporate Pension" for B2B.',
+        context: 'Banking products'
+      },
+      {
+        id: 17,
+        category: 'Content',
+        priority: 'low',
+        original: 'Cidadania',
+        current: 'Citizenship',
+        suggested: 'Corporate Citizenship / ESG',
+        notes: 'In corporate context, "Corporate Citizenship" or "ESG Initiatives" better conveys social responsibility programs.',
+        context: 'About section'
+      },
+      {
+        id: 18,
+        category: 'Content',
+        priority: 'medium',
+        original: 'Nossa Trajetória',
+        current: 'Our trajectory',
+        suggested: 'Our History / Our Journey',
+        notes: '"Trajectory" is technically correct but unusual. "Our History" or "Our Journey" are more natural in English.',
+        context: 'About section'
+      },
+      {
+        id: 19,
+        category: 'Research',
+        priority: 'medium',
+        original: 'Avaliação Estadual',
+        current: 'State Assessment',
+        suggested: 'State-Level Analysis / Regional Assessment',
+        notes: '"State Assessment" could be confused with government evaluation. "State-Level Analysis" is clearer for research reports.',
+        context: 'Research reports'
+      },
+      {
+        id: 20,
+        category: 'Events',
+        priority: 'high',
+        original: 'Data Business',
+        current: 'Data Business',
+        suggested: 'Data Business',
+        notes: '✓ This appears to be a branded event name. Keep as-is but ensure consistent formatting.',
+        context: 'Event series name'
+      },
+      {
+        id: 21,
+        category: 'Numbers',
+        priority: 'medium',
+        original: 'R$ 17 bi',
+        current: 'R $ 17 bi',
+        suggested: 'R$17 billion / BRL 17B',
+        notes: 'Remove space after R$. For international audience, spell out "billion" or use "BRL 17B" for professionals.',
+        context: 'Key metrics'
+      },
+      {
+        id: 22,
+        category: 'Content',
+        priority: 'low',
+        original: 'Carta do Economista',
+        current: "Economist's Letter",
+        suggested: "Economist's Letter / Chief Economist's Commentary",
+        notes: '✓ Acceptable. Could elevate to "Chief Economist\'s Commentary" for more authority.',
+        context: 'Research content'
+      },
+      {
+        id: 23,
+        category: 'Services',
+        priority: 'high',
+        original: 'Atendimento Corporativo',
+        current: 'Corporate Service',
+        suggested: 'Corporate Banking / Institutional Services',
+        notes: '"Corporate Service" is vague. "Corporate Banking" or "Institutional Services" are standard finance terms.',
+        context: 'Corporate menu'
+      },
+      {
+        id: 24,
+        category: 'Products',
+        priority: 'medium',
+        original: 'Fundos de Investimento',
+        current: 'Investment Funds',
+        suggested: 'Investment Funds / Mutual Funds',
+        notes: '✓ Correct. Note: in US context, "Mutual Funds" is more common for retail; "Investment Funds" for institutional.',
+        context: 'Products'
+      },
+      {
+        id: 25,
+        category: 'Structure',
+        priority: 'high',
+        original: 'Áreas de Atuação',
+        current: 'Fields of practice',
+        suggested: 'Business Lines / Our Businesses',
+        notes: '"Fields of practice" sounds like law. For a bank, use "Business Lines", "Our Businesses", or "Business Areas".',
+        context: 'Section header'
+      },
+      {
+        id: 26,
+        category: 'Content',
+        priority: 'medium',
+        original: 'Soluções completas e personalizadas',
+        current: 'Complete and tailored solutions',
+        suggested: 'Comprehensive, tailored solutions',
+        notes: '"Comprehensive" is more professional than "complete" in financial services marketing.',
+        context: 'Taglines'
+      },
+      {
+        id: 27,
+        category: 'Research',
+        priority: 'medium',
+        original: 'Venture Capital Outlook',
+        current: 'Venture Capital Outlook: An Analysis of Industry Data',
+        suggested: 'Venture Capital Outlook: Industry Data Analysis',
+        notes: 'Slightly more concise. The current version is acceptable.',
+        context: 'Report titles'
+      },
+      {
+        id: 28,
+        category: 'Events',
+        priority: 'high',
+        original: 'Edição',
+        current: 'Edition',
+        suggested: 'Edition',
+        notes: '✓ Correct, but ensure format consistency: "Londrina Edition" not "– Londrina Edition" or "- London Edition"',
+        context: 'Event names'
+      },
+      {
+        id: 29,
+        category: 'URL Issues',
+        priority: 'critical',
+        original: '/cultural--/',
+        current: '/cultural--/',
+        suggested: '/foreign-exchange/ or /fx/',
+        notes: '⚠️ BROKEN URL: The Exchange page URL contains errors. Should be a clean, descriptive URL.',
+        context: 'Website URLs'
+      },
+      {
+        id: 30,
+        category: 'Content',
+        priority: 'low',
+        original: 'Onde o Brasil Acontece',
+        current: 'Where Brazil Happens',
+        suggested: 'Where Brazil Happens',
+        notes: '✓ This is Apex\'s tagline/positioning. Current translation captures the meaning well.',
+        context: 'Brand tagline'
+      }
+    ];
+
+    // State
+    let selectedCategory = 'All';
+    let selectedPriority = 'all';
+    let searchTerm = '';
+    let expandedId = null;
+
+    // Helper functions
+    function getPriorityColor(priority) {
+      switch(priority) {
+        case 'critical': return 'bg-red-500/20 text-red-300 border-red-500/30';
+        case 'high': return 'bg-orange-500/20 text-orange-300 border-orange-500/30';
+        case 'medium': return 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30';
+        case 'low': return 'bg-green-500/20 text-green-300 border-green-500/30';
+        default: return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
+      }
+    }
+
+    function getPriorityDot(priority) {
+      switch(priority) {
+        case 'critical': return 'bg-red-400';
+        case 'high': return 'bg-orange-400';
+        case 'medium': return 'bg-yellow-400';
+        case 'low': return 'bg-green-400';
+        default: return 'bg-gray-400';
+      }
+    }
+
+    function filterData() {
+      return translationData.filter(item => {
+        const categoryMatch = selectedCategory === 'All' || item.category === selectedCategory;
+        const priorityMatch = selectedPriority === 'all' || item.priority === selectedPriority;
+        const searchMatch = searchTerm === '' || 
+          item.original.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.current.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.suggested.toLowerCase().includes(searchTerm.toLowerCase());
+        return categoryMatch && priorityMatch && searchMatch;
+      });
+    }
+
+    function copyToClipboard(text, id) {
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById(`copy-btn-${id}`);
+        btn.innerHTML = `<svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
+        setTimeout(() => {
+          btn.innerHTML = `<svg class="w-4 h-4 text-slate-500 group-hover:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>`;
+        }, 2000);
+      });
+    }
+
+    function toggleExpand(id) {
+      expandedId = expandedId === id ? null : id;
+      renderCards();
+    }
+
+    function renderCards() {
+      const container = document.getElementById('translations-container');
+      const emptyState = document.getElementById('empty-state');
+      const filtered = filterData();
+      
+      if (filtered.length === 0) {
+        container.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+      
+      emptyState.classList.add('hidden');
+      
+      container.innerHTML = filtered.map(item => `
+        <div class="glass rounded-xl border border-slate-800/50 overflow-hidden transition-all ${expandedId === item.id ? 'ring-1 ring-blue-500/30' : ''}">
+          <div class="p-5 cursor-pointer hover:bg-slate-800/20 transition-colors" onclick="toggleExpand(${item.id})">
+            <div class="flex items-start gap-4">
+              <div class="w-1.5 h-16 rounded-full ${getPriorityDot(item.priority)}"></div>
+              
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-3 mb-3 flex-wrap">
+                  <span class="px-2.5 py-1 rounded-md text-xs font-medium border ${getPriorityColor(item.priority)}">
+                    ${item.priority.toUpperCase()}
+                  </span>
+                  <span class="text-slate-500 text-sm">${item.category}</span>
+                  <span class="text-slate-600 text-sm">•</span>
+                  <span class="text-slate-500 text-sm mono">${item.context}</span>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                  <div>
+                    <p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Current</p>
+                    <p class="text-red-300/80 mono text-sm line-through decoration-red-500/30">${item.current}</p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Suggested</p>
+                    <div class="flex items-center gap-2">
+                      <p class="text-emerald-300 mono text-sm font-medium">${item.suggested}</p>
+                      <button
+                        id="copy-btn-${item.id}"
+                        onclick="event.stopPropagation(); copyToClipboard('${item.suggested.replace(/'/g, "\\'")}', ${item.id})"
+                        class="p-1.5 rounded-md hover:bg-slate-700/50 transition-colors group"
+                        title="Copy to clipboard"
+                      >
+                        <svg class="w-4 h-4 text-slate-500 group-hover:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <svg class="w-5 h-5 text-slate-500 transition-transform ${expandedId === item.id ? 'rotate-180' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </div>
+          </div>
+
+          ${expandedId === item.id ? `
+            <div class="px-5 pb-5 border-t border-slate-800/30">
+              <div class="pt-4 pl-5">
+                <div class="bg-slate-900/50 rounded-lg p-4 border border-slate-800/30">
+                  <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">Translation Notes</p>
+                  <p class="text-slate-300 text-sm leading-relaxed">${item.notes}</p>
+                  ${item.original !== item.current ? `
+                    <div class="mt-3 pt-3 border-t border-slate-800/30">
+                      <p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Original Portuguese</p>
+                      <p class="text-slate-400 mono text-sm">${item.original}</p>
+                    </div>
+                  ` : ''}
+                </div>
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      `).join('');
+    }
+
+    // Event listeners
+    document.getElementById('search-input').addEventListener('input', (e) => {
+      searchTerm = e.target.value;
+      renderCards();
+    });
+
+    document.getElementById('category-select').addEventListener('change', (e) => {
+      selectedCategory = e.target.value;
+      renderCards();
+    });
+
+    document.querySelectorAll('.priority-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        selectedPriority = e.target.dataset.priority;
+        document.querySelectorAll('.priority-btn').forEach(b => {
+          b.classList.remove('bg-blue-600', 'text-white');
+          b.classList.add('bg-slate-900/50', 'text-slate-400');
+        });
+        e.target.classList.remove('bg-slate-900/50', 'text-slate-400');
+        e.target.classList.add('bg-blue-600', 'text-white');
+        renderCards();
+      });
+    });
+
+    // Initial render
+    renderCards();
+  </script>
+</body>
+</html>
