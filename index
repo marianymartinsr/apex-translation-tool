@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apex Partners - Translation Review Tool v2.0</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'DM Sans', system-ui, sans-serif; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    .glass { background: rgba(30, 41, 59, 0.5); backdrop-filter: blur(12px); }
+    .gradient-border { 
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.5), rgba(147, 51, 234, 0.5));
+      padding: 1px;
+      border-radius: 0.75rem;
+    }
+    .card-inner { background: rgba(15, 23, 42, 0.9); border-radius: 0.75rem; }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #1e293b; }
+    ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800/50 glass sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center font-bold text-lg">A</div>
+          <div>
+            <h1 class="text-xl font-semibold tracking-tight">Apex Partners</h1>
+            <p class="text-sm text-slate-400">Translation Review Tool v2.0 — Full Content Analysis</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 text-sm">
+          <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-500/10 border border-red-500/20">
+            <span class="w-2 h-2 rounded-full bg-red-400"></span>
+            <span class="text-red-300" id="critical-count">0 Critical</span>
+          </div>
+          <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20">
+            <span class="w-2 h-2 rounded-full bg-orange-400"></span>
+            <span class="text-orange-300" id="high-count">0 High</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-6 py-8">
+    
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div class="gradient-border"><div class="card-inner p-5">
+        <p class="text-slate-400 text-sm mb-1">Total Issues</p>
+        <p class="text-3xl font-bold text-slate-300" id="total-stat">0</p>
+      </div></div>
+      <div class="gradient-border"><div class="card-inner p-5">
+        <p class="text-slate-400 text-sm mb-1">Critical</p>
+        <p class="text-3xl font-bold text-red-400" id="critical-stat">0</p>
+      </div></div>
+      <div class="gradient-border"><div class="card-inner p-5">
+        <p class="text-slate-400 text-sm mb-1">High Priority</p>
+        <p class="text-3xl font-bold text-orange-400" id="high-stat">0</p>
+      </div></div>
+      <div class="gradient-border"><div class="card-inner p-5">
+        <p class="text-slate-400 text-sm mb-1">Medium/Low</p>
+        <p class="text-3xl font-bold text-emerald-400" id="medium-low-stat">0</p>
+      </div></div>
+    </div>
+
+    <!-- Filters -->
+    <div class="glass rounded-2xl p-5 mb-6 border border-slate-800/50">
+      <div class="flex flex-wrap items-center gap-4">
+        <div class="flex-1 min-w-[280px]">
+          <div class="relative">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <input type="text" id="search-input" placeholder="Search translations..." class="w-full pl-10 pr-4 py-2.5 bg-slate-900/50 border border-slate-700/50 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500/50">
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-slate-500 text-sm">Page:</span>
+          <select id="page-select" class="px-3 py-2 bg-slate-900/50 border border-slate-700/50 rounded-lg text-slate-200 focus:outline-none cursor-pointer">
+            <option value="All">All Pages</option>
+            <option value="Homepage">Homepage</option>
+            <option value="Institutional">Institutional</option>
+            <option value="Wealth Management">Wealth Management</option>
+            <option value="Investment Banking">Investment Banking</option>
+            <option value="Asset Management">Asset Management</option>
+            <option value="Purpose">Purpose</option>
+            <option value="Footer">Footer / Global</option>
+          </select>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-slate-500 text-sm">Type:</span>
+          <select id="type-select" class="px-3 py-2 bg-slate-900/50 border border-slate-700/50 rounded-lg text-slate-200 focus:outline-none cursor-pointer">
+            <option value="All">All Types</option>
+            <option value="Title">Titles/Headers</option>
+            <option value="Paragraph">Paragraphs</option>
+            <option value="Menu">Menu Items</option>
+            <option value="Label">Labels/Buttons</option>
+            <option value="URL">URLs</option>
+          </select>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-slate-500 text-sm">Priority:</span>
+          <div class="flex rounded-lg overflow-hidden border border-slate-700/50" id="priority-buttons">
+            <button data-priority="all" class="priority-btn px-3 py-2 text-sm bg-blue-600 text-white">All</button>
+            <button data-priority="critical" class="priority-btn px-3 py-2 text-sm bg-slate-900/50 text-slate-400 hover:text-slate-200">Critical</button>
+            <button data-priority="high" class="priority-btn px-3 py-2 text-sm bg-slate-900/50 text-slate-400 hover:text-slate-200">High</button>
+            <button data-priority="medium" class="priority-btn px-3 py-2 text-sm bg-slate-900/50 text-slate-400 hover:text-slate-200">Medium</button>
+            <button data-priority="low" class="priority-btn px-3 py-2 text-sm bg-slate-900/50 text-slate-400 hover:text-slate-200">Low</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Translation Cards Container -->
+    <div id="translations-container" class="space-y-3"></div>
+
+    <!-- Empty state -->
+    <div id="empty-state" class="text-center py-16 hidden">
+      <svg class="w-16 h-16 mx-auto text-slate-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <p class="text-slate-500">No translations match your filters</p>
+    </div>
+
+    <!-- Quick Reference -->
+    <div class="mt-8 glass rounded-2xl p-6 border border-slate-800/50">
+      <h3 class="text-lg font-semibold mb-4">Quick Reference — Finance Terminology</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
+        <div class="flex items-center gap-2 px-3 py-2 bg-slate-900/30 rounded-lg"><span class="text-slate-500">Consórcio</span><span class="text-slate-600">→</span><span class="text-emerald-400 mono font-medium">Consortium</span></div>
+        <div class="flex items-center gap-2 px-3 py-2 bg-slate-900/30 rounded-lg"><span class="text-slate-500">Gestão de Recursos</span><span class="text-slate-600">→</span><span class="text-emerald-400 mono font-medium">Asset Management</span></div>
+        <div class="flex items-center gap-2 px-3 py-2 bg-slate-900/30 rounded-lg"><span class="text-slate-500">Câmbio</span><span class="text-slate-600">→</span><span class="text-emerald-400 mono font-medium">Foreign Exchange (FX)</span></div>
+        <div class="flex items-center gap-2 px-3 py-2 bg-slate-900/30 rounded-lg"><span class="text-slate-500">Captação de Recursos</span><span class="text-slate-600">→</span><span class="text-emerald-400 mono font-medium">Fundraising</span></div>
+        <div class="flex items-center gap-2 px-3 py-2 bg-slate-900/30 rounded-lg"><span class="text-slate-500">Mercado de Capitais</span><span class="text-slate-600">→</span><span class="text-emerald-400 mono font-medium">Capital Markets</span></div>
+        <div class="flex items-center gap-2 px-3 py-2 bg-slate-900/30 rounded-lg"><span class="text-slate-500">Ouvidoria</span><span class="text-slate-600">→</span><span class="text-emerald-400 mono font-medium">Ombudsman / Customer Relations</span></div>
+        <div class="flex items-center gap-2 px-3 py-2 bg-slate-900/30 rounded-lg"><span class="text-slate-500">Senso de Dono</span><span class="text-slate-600">→</span><span class="text-emerald-400 mono font-medium">Ownership Mindset</span></div>
+        <div class="flex items-center gap-2 px-3 py-2 bg-slate-900/30 rounded-lg"><span class="text-slate-500">Visão Holística</span><span class="text-slate-600">→</span><span class="text-emerald-400 mono font-medium">Holistic Approach</span></div>
+        <div class="flex items-center gap-2 px-3 py-2 bg-slate-900/30 rounded-lg"><span class="text-slate-500">Ativos sob Gestão</span><span class="text-slate-600">→</span><span class="text-emerald-400 mono font-medium">Assets Under Management (AUM)</span></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-slate-800/50 mt-12">
+    <div class="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between text-sm text-slate-500 flex-wrap gap-2">
+      <p>Apex Partners Translation Review v2.0 — apexpartners.com.br/en/</p>
+      <p><span id="item-count">0</span> items catalogued</p>
+    </div>
+  </footer>
+
+  <script>
+    const translationData = [
+      // ===== CRITICAL ERRORS =====
+      {
+        id: 1, page: 'Homepage', type: 'Menu', priority: 'critical',
+        current: 'rattlesnake (PR)',
+        suggested: 'Cascavel (PR)',
+        notes: '⚠️ CRITICAL: "Cascavel" is a CITY NAME. Never translate proper nouns. This error makes Apex look unprofessional.',
+        context: 'Event location - Mundo Business'
+      },
+      {
+        id: 2, page: 'Homepage', type: 'Menu', priority: 'critical',
+        current: 'London (PR)',
+        suggested: 'Londrina (PR)',
+        notes: '⚠️ CRITICAL: "Londrina" is a Brazilian city in Paraná state, NOT London, UK. This is a machine translation error.',
+        context: 'Event locations - multiple events'
+      },
+      {
+        id: 3, page: 'Homepage', type: 'Label', priority: 'critical',
+        current: 'Politicians',
+        suggested: 'Political Analysis',
+        notes: '⚠️ CRITICAL: "Politicians" refers to PEOPLE. The Research category should be "Political Analysis" or "Political Research".',
+        context: 'Research section filter'
+      },
+      {
+        id: 4, page: 'Footer', type: 'URL', priority: 'critical',
+        current: '/cultural--/',
+        suggested: '/foreign-exchange/ or /fx/',
+        notes: '⚠️ BROKEN URL: The Exchange page URL contains errors ("/cultural--/"). This creates broken links and SEO issues.',
+        context: 'Exchange service link'
+      },
+      {
+        id: 5, page: 'Footer', type: 'Label', priority: 'critical',
+        current: 'Internal Affairs',
+        suggested: 'Ombudsman / Customer Relations',
+        notes: '⚠️ CRITICAL: "Internal Affairs" sounds like police investigation! "Ouvidoria" = Ombudsman or Customer Relations Office.',
+        context: 'Footer contact section'
+      },
+      {
+        id: 6, page: 'Footer', type: 'Label', priority: 'critical',
+        current: 'Acess Documents',
+        suggested: 'Access Documents',
+        notes: '⚠️ TYPO: "Acess" should be "Access" - spelling error visible in footer.',
+        context: 'Footer documents section'
+      },
+
+      // ===== HIGH PRIORITY - TERMINOLOGY =====
+      {
+        id: 7, page: 'Homepage', type: 'Menu', priority: 'high',
+        current: 'Group Purchase Plan',
+        suggested: 'Consortium',
+        notes: '"Consórcio" is a specific Brazilian financial product. "Consortium" is the accepted English term in Brazilian finance context.',
+        context: 'Banking menu - appears 4+ times'
+      },
+      {
+        id: 8, page: 'Homepage', type: 'Menu', priority: 'high',
+        current: 'Resource Management',
+        suggested: 'Asset Management',
+        notes: '"Asset Management" is the global standard term. "Resource Management" sounds like HR or IT. Critical for investor-facing content.',
+        context: 'Industries menu'
+      },
+      {
+        id: 9, page: 'Homepage', type: 'Menu', priority: 'high',
+        current: 'Exchange',
+        suggested: 'Foreign Exchange (FX)',
+        notes: '"Exchange" alone is ambiguous (stock exchange?). "Foreign Exchange" or "FX Services" is the professional term.',
+        context: 'Corporate services menu'
+      },
+      {
+        id: 10, page: 'Institutional', type: 'Title', priority: 'high',
+        current: 'Our Specialities',
+        suggested: 'Our Expertise / Business Lines',
+        notes: '"Specialities" is British spelling and unusual for finance. "Expertise" or "Business Lines" are more professional.',
+        context: 'Section header'
+      },
+      {
+        id: 11, page: 'Institutional', type: 'Paragraph', priority: 'high',
+        current: 'Leading regional resource manager in Brazil',
+        suggested: 'Leading regional asset manager in Brazil',
+        notes: '"Resource manager" is incorrect terminology. Must be "Asset Manager" - this is industry standard.',
+        context: 'Asset Management description'
+      },
+      {
+        id: 12, page: 'Investment Banking', type: 'Label', priority: 'high',
+        current: '27 terms',
+        suggested: '27 mandates',
+        notes: '"Terms" is incorrect. In investment banking, "mandates" is the correct word for active client engagements.',
+        context: 'Key metrics section'
+      },
+      {
+        id: 13, page: 'Investment Banking', type: 'Title', priority: 'high',
+        current: 'Fundraising',
+        suggested: 'Capital Raising',
+        notes: 'In investment banking context, "Capital Raising" is more professional than "Fundraising" (which sounds like charity).',
+        context: 'M&A services section'
+      },
+      {
+        id: 14, page: 'Asset Management', type: 'Paragraph', priority: 'high',
+        current: 'AuM of opportunities made possible by Apex Manager',
+        suggested: 'Assets Under Management (AUM)',
+        notes: 'The phrase is awkward. Should simply be "Assets Under Management" or "AUM" - standard finance terminology.',
+        context: 'Key metrics'
+      },
+      {
+        id: 15, page: 'Purpose', type: 'Paragraph', priority: 'high',
+        current: 'To be the leading regional Mercantile Investment Bank',
+        suggested: 'To become the leading regional investment bank',
+        notes: '"Mercantile" is archaic/outdated term. Modern banks don\'t use this. Simply "investment bank" is correct.',
+        context: 'Vision statement'
+      },
+      {
+        id: 16, page: 'Purpose', type: 'Label', priority: 'high',
+        current: 'Sense of Ownership',
+        suggested: 'Ownership Mindset',
+        notes: '"Sense of Ownership" is literal translation. "Ownership Mindset" or "Entrepreneurial Spirit" are more natural in English.',
+        context: 'Company values'
+      },
+      {
+        id: 17, page: 'Footer', type: 'Label', priority: 'high',
+        current: 'Resource Manager',
+        suggested: 'Asset Manager Compliance',
+        notes: 'In compliance documents section, should clarify this refers to Asset Manager regulatory documents.',
+        context: 'Documents section'
+      },
+      {
+        id: 18, page: 'Footer', type: 'Label', priority: 'high',
+        current: 'CVM Consulting',
+        suggested: 'Securities Commission Compliance / CVM Disclosures',
+        notes: 'International visitors won\'t know CVM = Brazilian SEC. Add context or use "Securities Regulator".',
+        context: 'Documents section'
+      },
+
+      // ===== HIGH PRIORITY - PARAGRAPHS =====
+      {
+        id: 19, page: 'Wealth Management', type: 'Paragraph', priority: 'high',
+        current: 'investment strategies that not only generates returns',
+        suggested: 'investment strategies that not only generate returns',
+        notes: '⚠️ GRAMMAR: Subject-verb agreement error. "strategies... generates" should be "strategies... generate".',
+        context: 'Main description paragraph'
+      },
+      {
+        id: 20, page: 'Wealth Management', type: 'Paragraph', priority: 'high',
+        current: 'One of the distinguishing features is the holistic approach.',
+        suggested: 'A key differentiator is our holistic approach.',
+        notes: 'Awkward phrasing. "Distinguishing features" is clunky. Suggest more professional wording.',
+        context: 'Section subheader'
+      },
+      {
+        id: 21, page: 'Investment Banking', type: 'Paragraph', priority: 'high',
+        current: 'Assistance in raising resources via debt from financiers',
+        suggested: 'Assistance in raising capital through debt financing',
+        notes: '"Raising resources" is not finance terminology. Use "raising capital" or "capital raising".',
+        context: 'Fundraising description'
+      },
+      {
+        id: 22, page: 'Investment Banking', type: 'Paragraph', priority: 'high',
+        current: 'via equity from Private Equity Funds, Sovereign Wealth Funds, Family Offices, Managers and individuals',
+        suggested: 'through equity from private equity funds, sovereign wealth funds, family offices, institutional investors, and individuals',
+        notes: 'Inconsistent capitalization. Also "Managers" is vague - should be "institutional investors".',
+        context: 'Fundraising description'
+      },
+      {
+        id: 23, page: 'Asset Management', type: 'Paragraph', priority: 'high',
+        current: 'we facilitate access to private market investments',
+        suggested: 'we provide access to private markets investments',
+        notes: '"Facilitate access" is verbose. "Provide access" is more direct and professional.',
+        context: 'Main description'
+      },
+
+      // ===== MEDIUM PRIORITY =====
+      {
+        id: 24, page: 'Homepage', type: 'Menu', priority: 'medium',
+        current: 'Variable income',
+        suggested: 'Variable Income / Equities',
+        notes: 'Inconsistent capitalization (sometimes "income" sometimes "Income"). Standardize. "Equities" also acceptable.',
+        context: 'Investment products'
+      },
+      {
+        id: 25, page: 'Homepage', type: 'Menu', priority: 'medium',
+        current: 'Hubs / Poles',
+        suggested: 'Regional Hubs',
+        notes: '"Poles" is literal translation of "Polos". Use "Regional Hubs" consistently throughout.',
+        context: 'Geographic section'
+      },
+      {
+        id: 26, page: 'Homepage', type: 'Title', priority: 'medium',
+        current: 'Fields of practice',
+        suggested: 'Business Lines / Our Businesses',
+        notes: '"Fields of practice" sounds like law firm. For a bank, use "Business Lines" or "Business Areas".',
+        context: 'Section header'
+      },
+      {
+        id: 27, page: 'Homepage', type: 'Label', priority: 'medium',
+        current: 'R $ 17 bi',
+        suggested: 'R$17 billion / BRL 17B',
+        notes: 'Remove space after R$. For international audience, spell out "billion" or use "BRL 17B".',
+        context: 'Key metrics'
+      },
+      {
+        id: 28, page: 'Homepage', type: 'Menu', priority: 'medium',
+        current: 'Our trajectory',
+        suggested: 'Our History / Our Journey',
+        notes: '"Trajectory" is technically correct but unusual. "Our History" or "Our Journey" are more natural.',
+        context: 'About Apex menu'
+      },
+      {
+        id: 29, page: 'Homepage', type: 'Label', priority: 'medium',
+        current: 'Capital market',
+        suggested: 'Capital Markets',
+        notes: 'Use plural "Markets" - this is standard industry terminology.',
+        context: 'Investment banking'
+      },
+      {
+        id: 30, page: 'Institutional', type: 'Paragraph', priority: 'medium',
+        current: 'network effects¹, as defined by Harvard Business School',
+        suggested: 'network effects, as defined by Harvard Business School',
+        notes: 'Remove footnote marker ¹ if there\'s no corresponding footnote, or add the footnote.',
+        context: 'Business model description'
+      },
+      {
+        id: 31, page: 'Institutional', type: 'Paragraph', priority: 'medium',
+        current: 'Sectoral intelligence',
+        suggested: 'Sector intelligence / Industry intelligence',
+        notes: '"Sectoral" is less common. "Sector intelligence" or "Industry research" is more natural.',
+        context: 'Research description'
+      },
+      {
+        id: 32, page: 'Wealth Management', type: 'Title', priority: 'medium',
+        current: 'Proximity and holistic vision to build the future',
+        suggested: 'Close partnerships and holistic planning for lasting wealth',
+        notes: 'Title is vague and awkward. Suggest more concrete, benefit-focused messaging.',
+        context: 'Section header'
+      },
+      {
+        id: 33, page: 'Wealth Management', type: 'Label', priority: 'medium',
+        current: 'Global perspective: integrated financial and asset planning',
+        suggested: 'Comprehensive wealth planning with global perspective',
+        notes: 'Reorder for better flow. Lead with benefit, then qualifier.',
+        context: 'Differentials bullet'
+      },
+      {
+        id: 34, page: 'Investment Banking', type: 'Title', priority: 'medium',
+        current: 'Tailor-made solutions for Brazilian regional ecosystems',
+        suggested: 'Customized solutions for Brazil\'s regional markets',
+        notes: '"Tailor-made" is slightly dated. "Customized" is more modern. Also "ecosystems" is overused jargon.',
+        context: 'Section header'
+      },
+      {
+        id: 35, page: 'Investment Banking', type: 'Paragraph', priority: 'medium',
+        current: 'Financial and tactical advice to the seller or buyer',
+        suggested: 'Strategic and financial advisory for sellers and buyers',
+        notes: '"Tactical" is unusual in M&A context. "Strategic" is the standard term.',
+        context: 'Sellside/Buyside description'
+      },
+      {
+        id: 36, page: 'Investment Banking', type: 'Title', priority: 'medium',
+        current: 'Mergers & Joint Ventures Advisory',
+        suggested: 'Mergers, Joint Ventures & Strategic Partnerships',
+        notes: 'Consider adding "Strategic Partnerships" as this is increasingly common service.',
+        context: 'Service offering'
+      },
+      {
+        id: 37, page: 'Asset Management', type: 'Paragraph', priority: 'medium',
+        current: 'with the purpose of developing regional markets',
+        suggested: 'focused on developing regional capital markets',
+        notes: '"Purpose of" is wordy. More direct: "focused on developing". Also specify "capital markets".',
+        context: 'Company description'
+      },
+      {
+        id: 38, page: 'Asset Management', type: 'Title', priority: 'medium',
+        current: 'Private Markets',
+        suggested: 'Private Markets',
+        notes: '✓ Correct terminology. Good use of standard industry term.',
+        context: 'Section header'
+      },
+      {
+        id: 39, page: 'Purpose', type: 'Paragraph', priority: 'medium',
+        current: 'Exploring the potential of Brazilian regional markets',
+        suggested: 'Unlocking the potential of Brazilian regional markets',
+        notes: '"Exploring" sounds tentative. "Unlocking" is more confident and action-oriented.',
+        context: 'Company description'
+      },
+      {
+        id: 40, page: 'Purpose', type: 'Paragraph', priority: 'medium',
+        current: 'providing customized solutions for investors and driving the development',
+        suggested: 'delivering tailored solutions for investors while driving the development',
+        notes: '"Providing" is passive. "Delivering" is more dynamic. Add "while" for better flow.',
+        context: 'Company description'
+      },
+      {
+        id: 41, page: 'Purpose', type: 'Label', priority: 'medium',
+        current: 'Focus on results',
+        suggested: 'Results-Driven',
+        notes: 'More concise as compound adjective. Common corporate value phrasing.',
+        context: 'Company values'
+      },
+      {
+        id: 42, page: 'Purpose', type: 'Label', priority: 'medium',
+        current: 'Long Term Vision',
+        suggested: 'Long-Term Vision',
+        notes: 'Add hyphen: "Long-Term" is compound adjective modifying "Vision".',
+        context: 'Company values'
+      },
+      {
+        id: 43, page: 'Footer', type: 'Label', priority: 'medium',
+        current: 'For You',
+        suggested: 'Individual Clients / Personal',
+        notes: '"For You" is informal. "Individual Clients" or "Personal Banking" is more professional.',
+        context: 'Footer navigation'
+      },
+      {
+        id: 44, page: 'Footer', type: 'Label', priority: 'medium',
+        current: 'For companies',
+        suggested: 'Corporate Clients / Business',
+        notes: 'Lowercase "companies" and informal tone. "Corporate Clients" is more professional.',
+        context: 'Footer navigation'
+      },
+      {
+        id: 45, page: 'Footer', type: 'Label', priority: 'medium',
+        current: 'The APEX',
+        suggested: 'About Apex',
+        notes: '"The APEX" is awkward. Simply "About Apex" or "About Us".',
+        context: 'Footer navigation header'
+      },
+      {
+        id: 46, page: 'Footer', type: 'Label', priority: 'medium',
+        current: 'Search for vacancies',
+        suggested: 'View Open Positions / Careers',
+        notes: '"Search for vacancies" is British. American: "View Open Positions" or simply "Careers".',
+        context: 'Careers link'
+      },
+
+      // ===== LOW PRIORITY =====
+      {
+        id: 47, page: 'Homepage', type: 'Label', priority: 'low',
+        current: 'Citizenship',
+        suggested: 'Corporate Citizenship / ESG',
+        notes: 'In corporate context, "Corporate Citizenship" or "ESG Initiatives" better conveys social responsibility.',
+        context: 'About menu'
+      },
+      {
+        id: 48, page: 'Homepage', type: 'Paragraph', priority: 'low',
+        current: 'Economist\'s Letter',
+        suggested: 'Chief Economist\'s Commentary',
+        notes: 'Could elevate to "Chief Economist\'s Commentary" for more authority. Current is acceptable.',
+        context: 'Research content'
+      },
+      {
+        id: 49, page: 'Homepage', type: 'Label', priority: 'low',
+        current: 'Net New Money',
+        suggested: 'Net New Money (NNM)',
+        notes: '✓ Correct term. Consider adding abbreviation (NNM) for finance professionals.',
+        context: 'Key metrics'
+      },
+      {
+        id: 50, page: 'Institutional', type: 'Paragraph', priority: 'low',
+        current: 'in all geographies in which we operate',
+        suggested: 'across all regions where we operate',
+        notes: '"Geographies" is acceptable but "regions" is more common in business English.',
+        context: 'Strategy description'
+      },
+      {
+        id: 51, page: 'Wealth Management', type: 'Paragraph', priority: 'low',
+        current: 'Expertise in family governance, succession, and tax planning',
+        suggested: 'Expertise in family governance, succession planning, and tax optimization',
+        notes: 'Minor improvement: "succession planning" and "tax optimization" are more precise terms.',
+        context: 'Differentials'
+      },
+      {
+        id: 52, page: 'Investment Banking', type: 'Paragraph', priority: 'low',
+        current: 'With high technical rigor and creative solutions',
+        suggested: 'Combining technical rigor with creative structuring',
+        notes: 'Minor style improvement. "Structuring" is more specific to IB context.',
+        context: 'Capital markets description'
+      },
+      {
+        id: 53, page: 'Purpose', type: 'Paragraph', priority: 'low',
+        current: 'Develop capital market solutions to strengthen Brazilian regional ecosystems',
+        suggested: 'Developing capital markets solutions to strengthen Brazil\'s regional economies',
+        notes: '"Capital markets" (plural). "Economies" is clearer than "ecosystems" for Purpose statement.',
+        context: 'Purpose statement'
+      },
+      {
+        id: 54, page: 'Footer', type: 'Paragraph', priority: 'low',
+        current: 'Investment funds are not guaranteed by the administrator, portfolio manager...',
+        suggested: 'Investment funds are not guaranteed by the fund administrator, portfolio manager...',
+        notes: 'Add "fund" before "administrator" for clarity. Standard disclaimer language.',
+        context: 'Legal disclaimer'
+      }
+    ];
+
+    // State
+    let selectedPage = 'All';
+    let selectedType = 'All';
+    let selectedPriority = 'all';
+    let searchTerm = '';
+    let expandedId = null;
+
+    function getPriorityColor(priority) {
+      switch(priority) {
+        case 'critical': return 'bg-red-500/20 text-red-300 border-red-500/30';
+        case 'high': return 'bg-orange-500/20 text-orange-300 border-orange-500/30';
+        case 'medium': return 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30';
+        case 'low': return 'bg-green-500/20 text-green-300 border-green-500/30';
+        default: return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
+      }
+    }
+
+    function getPriorityDot(priority) {
+      switch(priority) {
+        case 'critical': return 'bg-red-400';
+        case 'high': return 'bg-orange-400';
+        case 'medium': return 'bg-yellow-400';
+        case 'low': return 'bg-green-400';
+        default: return 'bg-gray-400';
+      }
+    }
+
+    function filterData() {
+      return translationData.filter(item => {
+        const pageMatch = selectedPage === 'All' || item.page === selectedPage;
+        const typeMatch = selectedType === 'All' || item.type === selectedType;
+        const priorityMatch = selectedPriority === 'all' || item.priority === selectedPriority;
+        const searchMatch = searchTerm === '' || 
+          item.current.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.suggested.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.notes.toLowerCase().includes(searchTerm.toLowerCase());
+        return pageMatch && typeMatch && priorityMatch && searchMatch;
+      });
+    }
+
+    function updateStats() {
+      const critical = translationData.filter(i => i.priority === 'critical').length;
+      const high = translationData.filter(i => i.priority === 'high').length;
+      const medium = translationData.filter(i => i.priority === 'medium').length;
+      const low = translationData.filter(i => i.priority === 'low').length;
+      
+      document.getElementById('total-stat').textContent = translationData.length;
+      document.getElementById('critical-stat').textContent = critical;
+      document.getElementById('high-stat').textContent = high;
+      document.getElementById('medium-low-stat').textContent = medium + low;
+      document.getElementById('critical-count').textContent = critical + ' Critical';
+      document.getElementById('high-count').textContent = high + ' High';
+      document.getElementById('item-count').textContent = translationData.length;
+    }
+
+    function copyToClipboard(text, id) {
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById(`copy-btn-${id}`);
+        btn.innerHTML = `<svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
+        setTimeout(() => {
+          btn.innerHTML = `<svg class="w-4 h-4 text-slate-500 group-hover:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>`;
+        }, 2000);
+      });
+    }
+
+    function toggleExpand(id) {
+      expandedId = expandedId === id ? null : id;
+      renderCards();
+    }
+
+    function renderCards() {
+      const container = document.getElementById('translations-container');
+      const emptyState = document.getElementById('empty-state');
+      const filtered = filterData();
+      
+      if (filtered.length === 0) {
+        container.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+      
+      emptyState.classList.add('hidden');
+      
+      container.innerHTML = filtered.map(item => `
+        <div class="glass rounded-xl border border-slate-800/50 overflow-hidden transition-all ${expandedId === item.id ? 'ring-1 ring-blue-500/30' : ''}">
+          <div class="p-5 cursor-pointer hover:bg-slate-800/20 transition-colors" onclick="toggleExpand(${item.id})">
+            <div class="flex items-start gap-4">
+              <div class="w-1.5 h-16 rounded-full ${getPriorityDot(item.priority)}"></div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-3 mb-3 flex-wrap">
+                  <span class="px-2.5 py-1 rounded-md text-xs font-medium border ${getPriorityColor(item.priority)}">${item.priority.toUpperCase()}</span>
+                  <span class="text-blue-400 text-sm">${item.page}</span>
+                  <span class="text-slate-600 text-sm">•</span>
+                  <span class="text-slate-500 text-sm">${item.type}</span>
+                  <span class="text-slate-600 text-sm">•</span>
+                  <span class="text-slate-500 text-sm mono">${item.context}</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                  <div>
+                    <p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Current</p>
+                    <p class="text-red-300/80 mono text-sm">${item.current}</p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Suggested</p>
+                    <div class="flex items-center gap-2">
+                      <p class="text-emerald-300 mono text-sm font-medium">${item.suggested}</p>
+                      <button id="copy-btn-${item.id}" onclick="event.stopPropagation(); copyToClipboard('${item.suggested.replace(/'/g, "\\'")}', ${item.id})" class="p-1.5 rounded-md hover:bg-slate-700/50 transition-colors group" title="Copy">
+                        <svg class="w-4 h-4 text-slate-500 group-hover:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <svg class="w-5 h-5 text-slate-500 transition-transform ${expandedId === item.id ? 'rotate-180' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </div>
+          </div>
+          ${expandedId === item.id ? `
+            <div class="px-5 pb-5 border-t border-slate-800/30">
+              <div class="pt-4 pl-5">
+                <div class="bg-slate-900/50 rounded-lg p-4 border border-slate-800/30">
+                  <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">Translation Notes</p>
+                  <p class="text-slate-300 text-sm leading-relaxed">${item.notes}</p>
+                </div>
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      `).join('');
+    }
+
+    // Event listeners
+    document.getElementById('search-input').addEventListener('input', (e) => { searchTerm = e.target.value; renderCards(); });
+    document.getElementById('page-select').addEventListener('change', (e) => { selectedPage = e.target.value; renderCards(); });
+    document.getElementById('type-select').addEventListener('change', (e) => { selectedType = e.target.value; renderCards(); });
+    
+    document.querySelectorAll('.priority-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        selectedPriority = e.target.dataset.priority;
+        document.querySelectorAll('.priority-btn').forEach(b => {
+          b.classList.remove('bg-blue-600', 'text-white');
+          b.classList.add('bg-slate-900/50', 'text-slate-400');
+        });
+        e.target.classList.remove('bg-slate-900/50', 'text-slate-400');
+        e.target.classList.add('bg-blue-600', 'text-white');
+        renderCards();
+      });
+    });
+
+    // Initial render
+    updateStats();
+    renderCards();
+  </script>
+</body>
+</html>
